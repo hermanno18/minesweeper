@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <title>Demineur By Hermanno</title>
+</head>
+<body>
+    <div class="w-screen h-screen bg-gray-900  bg-opacity-75 fixed flex place-content-center items-center" id="big_popup">
+        <div class="bg-gray-800 text-center p-5 rounded-md text-white">
+            <div class="space-y-7 hidden" id="gameover_good">
+                <H2 class="text-5xl text-green-500 ">Félicitation !</H2>
+                <div>Vous avez Trouvé toutes les mine en <span class="text-green-500" id ="finalTimeDisplay">50s</span></div>
+                <div class="">
+                    <span class="mt-5 p-5 py-3 text-2xl rounded-full bg-green-500 cursor-pointer" onclick="toggle_hidden('gameover_good'), toggle_hidden('gameiniter')">Suivant</span>
+                </div>
+            </div>
+
+            <div class="space-y-7 hidden" id="gameover_bad">
+                <H2 class="text-5xl text-red-500"> Game Over ! </H2>
+                <div>Domage , vous avez ouvert une mine !</div>
+                <div class="">
+                    <span class="mt-5 p-5 py-3 text-2xl rounded-full bg-red-500 cursor-pointer" onclick="toggle_hidden('gameover_bad'), toggle_hidden('gameiniter')">Suivant</span>
+                </div>
+            </div>
+            <div class=" space-y-3" id="gameiniter">
+                <H2 class="text-3xl mb-4"> <span class="text-green-500"> Demineur </span></H2>
+                <div class=" gap-2 grid grid-cols-3 ">
+                    <div class="cursor-pointer p-4 bg-gray-900 hover:bg-gray-700 rounded-md" onclick="loadGame(4), toggle_hidden('big_popup')">
+                        <span class="text-xl ">4X4</span>  <br><br>
+                        5 mines 
+                    </div>
+                    <div class="cursor-pointer p-4 bg-gray-900 hover:bg-gray-700 rounded-md" onclick="loadGame(8), toggle_hidden('big_popup')">
+                        <span class="text-xl ">8X8</span>  <br><br>
+                        10 mines 
+                    </div>
+                    <div class="cursor-pointer p-4 bg-gray-900 hover:bg-gray-700 rounded-md" onclick="loadGame(12), toggle_hidden('big_popup')">
+                        <span class="text-xl ">12X12</span>  <br><br>
+                        20 mines 
+                    </div>
+                    <div class="cursor-pointer p-4 bg-gray-900 hover:bg-gray-700 rounded-md" onclick="loadGame(16), toggle_hidden('big_popup')">
+                        <span class="text-xl ">16X16</span>  <br><br>
+                        30 mines 
+                    </div>
+                    <div class="cursor-pointer p-4 bg-gray-900 hover:bg-gray-700 rounded-md" onclick="loadGame(24), toggle_hidden('big_popup')">
+                        <span class="text-xl ">24X24</span>  <br><br>
+                        40 mines 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="flex place-content-center h-screen items-center">
+        <div class=" bg-gray-700 p-2 rounded-md" id="">
+            <div class="pb-4 flex place-content-between text-white items-center">
+                <span class="bg-purple-400 p-2 rounded-md  cursor-pointer" onclick="document.getElementById('big_popup').classList.remove('hidden'), document.getElementById('gameiniter').classList.remove('hidden')"> <i class=" fas fa-home"></i>   Acceuil</span>
+                <span> <i class=" fas fa-watch"></i> <span class="" id="timer"> 0h 0m 0s</span></span>
+                <span> <i class=" fas fa-flag"></i> <span id="remaningFlags">0/0</span></span>
+            </div>
+            <div class="h-96 w-96 flex flex-wrap" id="caseContainer"></div>
+        </div>
+    </div>
+    <script>
+
+        function initGame(nbCases, nbBombes){
+            table = []
+            for(i = 0; i < nbCases ;i++){
+                ligne = []
+                for(j = 0; j < nbCases ;j++){
+                    ligne.push(0) 
+                }
+                table.push(ligne)
+            }
+            // on positionne les bombes
+            for( i= 0;i <= nbBombes ;i++){
+                i_rand = Math.floor(Math.random()*(nbCases))
+                j_rand = Math.floor(Math.random()*(nbCases))
+                table[i_rand][j_rand] = "b" //la bombe c'est 
+            }
+    
+            // Pour chaque cases, on détermine le nombre de bombes qu'il y a au  tour
+            for(i = 0; i < nbCases ;i++){
+                for(j = 0; j < nbCases ;j++){
+                    if(table[i][j] != "b"){
+                        //voisin de droite
+                        if(typeof(table[i]) != "undefined"){
+                            if(typeof(table[i][j+1]) != "undefined"){
+                                if(table[i][j+1] == "b"){
+                                    table[i][j]+=1
+                                }
+                            }
+                        }
+                        //voisin de gauche
+                        if(typeof(table[i]) != "undefined"){
+                            if(typeof(table[i][j-1]) != "undefined"){
+                                if(table[i][j-1] == "b"){
+                                    table[i][j]+=1
+                                }
+                            }
+                        }
+                        //voisin de haut
+                        if(typeof(table[i-1]) != "undefined"){
+                            if(typeof(table[i-1][j]) != "undefined"){
+                                if(table[i-1][j] == "b"){
+                                    table[i][j]+=1
+                                }
+                            }
+                        }
+                        //voisin du bas
+                        if(typeof(table[i+1]) != "undefined"){
+                            if(typeof(table[i+1][j]) != "undefined"){
+                                if(table[i+1][j] == "b"){
+                                    table[i][j]+=1
+                                }
+                            }
+                        }
+                        //voisin de bas - droite
+                        if(typeof(table[i+1]) != "undefined"){
+                            if(typeof(table[i+1][j+1]) != "undefined"){
+                                if(table[i+1][j+1] == "b"){
+                                    table[i][j]+=1
+                                }
+                            }
+                        }
+                        //voisin de bas - gauche
+                        if(typeof(table[i+1]) != "undefined"){
+                            if(typeof(table[i+1][j-1]) != "undefined"){
+                                if(table[i+1][j-1] == "b"){
+                                    table[i][j]+=1
+                                }
+                            }
+                        }
+                        //voisin de haut - droite
+                        if(typeof(table[i-1]) != "undefined"){
+                            if(typeof(table[i-1][j+1]) != "undefined"){
+                                if(table[i-1][j+1] == "b"){
+                                    table[i][j]+=1
+                                }
+                            }
+                        }
+                        //voisin de haut - gauche
+                        if(typeof(table[i-1]) != "undefined"){
+                            if(typeof(table[i-1][j-1]) != "undefined"){
+                                if(table[i-1][j-1] == "b"){
+                                    table[i][j]+=1
+                                }
+                            }
+                        }
+    
+                    }
+                }
+            }
+        
+            return table
+        }
+
+    </script>
+    <script>
+        function loadGame(mode){
+            container = document.getElementById("caseContainer")
+            container.innerHTML = ""
+            sizeCase = 0
+            if(mode == 4){
+                sizeCase = 24
+                nbBombes = 5
+            }
+
+            if(mode == 8){
+                sizeCase = 12
+                nbBombes = 10
+
+            }
+
+            if(mode == 12){
+                sizeCase = 8
+                nbBombes = 20
+
+            }
+            if(mode == 16){
+                sizeCase = 6
+                nbBombes = 30
+
+            }
+
+            if(mode == 24){
+                sizeCase = 4
+                nbBombes = 40
+
+            }
+
+            gameGird = initGame(mode, nbBombes)
+            for(i = 0; i < mode ;i++){
+                for(j = 0; j < mode ;j++){
+                    container.innerHTML += "<div class='case h-"+sizeCase+" w-"+sizeCase+" text-white cursor-pointer font-semibold bg-gray-900 border border-gray-700 flex place-content-center items-center' onclick='action("+i+","+j+")' i ="+i+" j ="+j+" id='case"+i+"_"+j+"' ></div>"
+                }
+            }
+            reaminigCases = mode*mode 
+            var startTime =new Date().getTime()       
+            timerInterVal = setInterval(function(){
+                now = new Date().getTime()
+                t = now - startTime
+                var hours = Math.floor((t%(1000 * 60 * 60 * 24))/(1000 * 60 * 60));
+                var minutes = Math.floor((t % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((t % (1000 * 60)) / 1000); 
+                document.getElementById("timer").innerHTML =  hours + "h " + minutes + "m " + seconds + "s ";
+            }, 1000);
+        }
+
+        function action (i, j, role=1/* 1 pour ouvrir, et  0 pour marquer*/){
+            if(table[i, j] != "p" && table[i, j] != "m"){
+                //action pour ouvrir une case
+                cible = document.getElementById("case"+i+"_"+j)
+                cible.classList.remove('bg-gray-900')
+                if(gameGird[i][j] != 0){
+                    cible.innerHTML = gameGird[i][j]
+                }
+    
+    
+                if(gameGird[i][j] == 0){
+                    //on ouvre tous les voisins des cases vides (à valeur = 0)
+                    //openAllNeighbors(i,j)  
+                }
+    
+                if(gameGird[i][j] != "b"){
+                    cible.classList.add('bg-gray-400')
+                }else {
+                    cible.classList.add('bg-red-400')
+                    stopGame(0)
+                }
+                reaminigCases -- 
+/*                if(reaminigCases == nbBombes){
+                    stopGame(1)
+                }
+  */              
+                //table[i, j] = "p" //on dit alors qu'on est deja passé sur cete case
+            }
+                //action pour marquer une case
+                
+                //action pour demarquer
+
+
+        }
+        function stopGame(exitCode){
+            clearInterval(timerInterVal);
+            toggle_hidden('big_popup')
+            document.getElementById("gameiniter").classList.add('hidden')
+            if(exitCode == 1){
+                // il a fini le jeu
+                document.getElementById("finalTimeDisplay").innerHTML = 22 // le temps écoulé
+                document.getElementById("gameover_good").classList.remove('hidden')
+
+            }else{
+                // il a perdu
+                document.getElementById("gameover_bad").classList.remove('hidden')
+            }
+            
+        }
+
+        function toggle_hidden(id_cible){
+            document.getElementById(id_cible).classList.toggle('hidden')
+        }
+
+   /*     function openAllNeighbors(i, j){
+                        //voisin de droite
+                        if(typeof(table[i]) != "undefined"){
+                            if(typeof(table[i][j+1]) != "undefined"){
+                                if(table[i][j+1] != "b"){
+                                    action(i, j+1)    
+                                }
+                            }
+                        }
+                        //voisin de gauche
+                        if(typeof(table[i]) != "undefined"){
+                            if(typeof(table[i][j-1]) != "undefined"){
+                                if(table[i][j-1] != "b"){
+                                    action(i, j-1)
+                                }
+                            }
+                        }
+                        //voisin de haut
+                        if(typeof(table[i-1]) != "undefined"){
+                            if(typeof(table[i-1][j]) != "undefined"){
+                                if(table[i-1][j] != "b"){
+                                    action(i-1, j)
+                                }
+                            }
+                        }
+                        //voisin du bas
+                        if(typeof(table[i+1]) != "undefined"){
+                            if(typeof(table[i+1][j]) != "undefined"){
+                                if(table[i+1][j] != "b"){
+                                    action(i+1, j)
+                                }
+                            }
+                        }
+                        //voisin de bas - droite
+                        if(typeof(table[i+1]) != "undefined"){
+                            if(typeof(table[i+1][j+1]) != "undefined"){
+                                if(table[i+1][j+1] != "b"){
+                                    action(i+1, j+1)
+                                }
+                            }
+                        }
+                        //voisin de bas - gauche
+                        if(typeof(table[i+1]) != "undefined"){
+                            if(typeof(table[i+1][j-1]) != "undefined"){
+                                if(table[i+1][j-1] != "b"){
+                                    action(i+1, j-1)
+                                }
+                            }
+                        }
+                        //voisin de haut - droite
+                        if(typeof(table[i-1]) != "undefined"){
+                            if(typeof(table[i-1][j+1]) != "undefined"){
+                                if(table[i-1][j+1] != "b"){
+                                    action(i-1, j+1)
+                                }
+                            }
+                        }
+                        //voisin de haut - gauche
+                        if(typeof(table[i-1]) != "undefined"){
+                            if(typeof(table[i-1][j-1]) != "undefined"){
+                                if(table[i-1][j-1] != "b"){
+                                    action(i-1, j-1)
+                                }
+                            }
+                        }
+        }
+
+        */
+    </script> 
+</body>
+</html>
