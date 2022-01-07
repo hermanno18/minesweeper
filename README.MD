@@ -12,6 +12,6 @@ Some images for your pleasure :-)
     style="float: left; margin-right: 10px;" 
  />
 
-<img src="Capture d’écran du 2022-01-07 20-00-19.png"
+<img src="Capture d’écran du 2022-01-07 20-01-32.png"
     alt="Markdown Monster icon"
     style="float: left; margin-right: 10px;"  />
